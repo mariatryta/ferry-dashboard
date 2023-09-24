@@ -7,7 +7,7 @@ import { apiRequest } from "~/utils";
 import Layout from "~/components/layout";
 import { useToast } from "~/hooks/use-toast";
 import { TABLE_DATE_FORMAT } from "~/constants";
-import type { ReturnType } from "./api/voyage";
+import type { VoyageIndexResponsePayload } from "./api/voyage";
 
 import {
   Table,
@@ -20,8 +20,9 @@ import {
 import { Button } from "~/components/ui/button";
 
 export default function Home() {
-  const { data: voyages } = useQuery<ReturnType>(["voyages"], () =>
-    apiRequest("voyage", "GET")
+  const { data: voyages } = useQuery<VoyageIndexResponsePayload>(
+    ["voyages"],
+    () => apiRequest("voyage", "GET")
   );
   const { toast } = useToast();
   const queryClient = useQueryClient();

@@ -27,7 +27,7 @@ export function CreateUnitSheet() {
           <SheetTitle>Create unit</SheetTitle>
         </SheetHeader>
 
-        <CreateUnitForm></CreateUnitForm>
+        <CreateUnitForm />
       </SheetContent>
     </Sheet>
   );

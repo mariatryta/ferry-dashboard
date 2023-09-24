@@ -2,19 +2,21 @@ import type { Unit, Vessel, Voyage } from "@prisma/client";
 import type { NextApiHandler, NextApiRequest, NextApiResponse } from "next";
 import { prisma } from "~/server/db";
 
-export type ReturnType = (Voyage & { vessel: Vessel } & { units: Unit[] })[];
+export type VoyageIndexResponsePayload = (Voyage & { vessel: Vessel } & { units: Unit[] })[];
 
 const handler: NextApiHandler = async (
   req: NextApiRequest,
-  res: NextApiResponse<ReturnType>
+  res: NextApiResponse<VoyageIndexResponsePayload | undefined>
 ) => {
-
   if (req.method === "POST") {
     const createdVoyage = await prisma.voyage.create({
       data: JSON.parse(req.body) as Voyage,
     });
+
     createdVoyage ? res.status(201) : res.status(404);
+
     res.end();
+
     return;
   }
 

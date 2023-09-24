@@ -20,8 +20,9 @@ export async function apiRequest(
   body?: BodyInit
 ) {
   const response = await fetch(`/api/${path}`, { method, body: body || null });
-  const data =  response.headers.get("content-type") === null ? response: await response.json();
-
+  
+  const data = response.headers.get("content-type")?.includes('application/json') ? await response.json() : response ;
+  
   if (!response.ok) {
     throw new Error(data?.error || "Network response was not ok");
   } else {

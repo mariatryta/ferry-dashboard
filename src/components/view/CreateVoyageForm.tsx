@@ -5,7 +5,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { apiRequest } from "~/utils";
 import { useToast } from "~/hooks/use-toast";
-import type { ReturnType } from "~/pages/api/vessel";
+import type { VesselIndexResponsePayload } from "~/pages/api/vessel";
 
 import {
   Form,
@@ -25,14 +25,16 @@ import {
   SelectValue,
 } from "~/components/ui/select";
 
-const formSchema = z
+const CreateVoyageFormSchema = z
   .object({
-    scheduledArrival: z.coerce.date({
-      required_error: "Field is required",
-    }),
-    scheduledDeparture: z.coerce.date({
-      required_error: "Field is required",
-    }),
+    scheduledArrival: z.coerce
+      .date({ required_error: "Field is required" })
+      .transform((val) => val.toISOString()),
+
+    scheduledDeparture: z.coerce
+      .date({ required_error: "Field is required" })
+      .transform((val) => val.toISOString()),
+
     portOfLoading: z
       .string({
         required_error: "Field is required",
@@ -51,10 +53,7 @@ const formSchema = z
   })
   .refine(
     (schema) => {
-      return (
-        schema.scheduledDeparture.toISOString() <
-        schema.scheduledArrival.toISOString()
-      );
+      return schema.scheduledDeparture < schema.scheduledArrival;
     },
     {
       message: "Departure time must be before arrival time",
@@ -64,16 +63,21 @@ const formSchema = z
 
 export function CreateVoyageForm() {
   const { toast } = useToast();
-  const { data: vessels } = useQuery<ReturnType>(["vessels"], () =>
-    apiRequest("vessel", "GET")
+  const { data: vessels } = useQuery<VesselIndexResponsePayload>(
+    ["vessels"],
+    () => apiRequest("vessel", "GET")
   );
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
+  const form = useForm<z.infer<typeof CreateVoyageFormSchema>>({
+    resolver: zodResolver(CreateVoyageFormSchema),
+    defaultValues: {
+      scheduledArrival: undefined,
+      scheduledDeparture: undefined,
+    },
   });
   const queryClient = useQueryClient();
 
   const mutation = useMutation({
-    mutationFn: async (values: z.infer<typeof formSchema>) => {
+    mutationFn: async (values: z.infer<typeof CreateVoyageFormSchema>) => {
       await apiRequest("voyage", "POST", JSON.stringify(values));
     },
 
@@ -90,7 +94,7 @@ export function CreateVoyageForm() {
     },
   });
 
-  const createVoyage = (values: z.infer<typeof formSchema>) => {
+  const createVoyage = (values: z.infer<typeof CreateVoyageFormSchema>) => {
     mutation.mutate(values);
   };
 
@@ -145,12 +149,12 @@ export function CreateVoyageForm() {
               <FormLabel> Port of loading </FormLabel>
               <FormControl>
                 <Input
-                  {...field}
                   type="text"
                   required
                   placeholder="Copenhagen"
                   id="portOfLoading"
                   className="col-span-3"
+                  {...field}
                 />
               </FormControl>
               <FormMessage />

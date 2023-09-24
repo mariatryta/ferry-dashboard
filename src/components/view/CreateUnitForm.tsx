@@ -27,7 +27,7 @@ import {
 import { Input } from "~/components/ui/input";
 import { Button } from "~/components/ui/button";
 
-const formSchema = z.object({
+const CreateUnitFormSchema = z.object({
   type: z.string({
     required_error: "Field is required",
   }),
@@ -40,13 +40,13 @@ export function CreateUnitForm() {
 
   const { query } = useRouter();
   const { toast } = useToast();
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
+  const form = useForm<z.infer<typeof CreateUnitFormSchema>>({
+    resolver: zodResolver(CreateUnitFormSchema),
   });
   const queryClient = useQueryClient();
 
   const mutation = useMutation({
-    mutationFn: async (values: z.infer<typeof formSchema>) => {
+    mutationFn: async (values: z.infer<typeof CreateUnitFormSchema>) => {
       await apiRequest(
         "unit",
         "POST",
@@ -67,7 +67,7 @@ export function CreateUnitForm() {
     },
   });
 
-  const createUnit = (values: z.infer<typeof formSchema>) => {
+  const createUnit = (values: z.infer<typeof CreateUnitFormSchema>) => {
     mutation.mutate(values);
   };
 
