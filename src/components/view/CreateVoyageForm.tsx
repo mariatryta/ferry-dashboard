@@ -5,7 +5,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { apiRequest } from "~/utils";
 import { useToast } from "~/hooks/use-toast";
-import type { ReturnType } from "~/pages/api/vessel/getAll";
+import type { ReturnType } from "~/pages/api/vessel";
 
 import {
   Form,
@@ -27,10 +27,10 @@ import {
 
 const formSchema = z
   .object({
-    scheduledDeparture: z.coerce.date({
+    scheduledArrival: z.coerce.date({
       required_error: "Field is required",
     }),
-    scheduledArrival: z.coerce.date({
+    scheduledDeparture: z.coerce.date({
       required_error: "Field is required",
     }),
     portOfLoading: z
@@ -65,7 +65,7 @@ const formSchema = z
 export function CreateVoyageForm() {
   const { toast } = useToast();
   const { data: vessels } = useQuery<ReturnType>(["vessels"], () =>
-    apiRequest("vessel/getAll", "GET")
+    apiRequest("vessel", "GET")
   );
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -74,7 +74,7 @@ export function CreateVoyageForm() {
 
   const mutation = useMutation({
     mutationFn: async (values: z.infer<typeof formSchema>) => {
-      await apiRequest("voyage/add", "POST", JSON.stringify(values));
+      await apiRequest("voyage", "POST", JSON.stringify(values));
     },
 
     onSuccess: async () => {
@@ -100,7 +100,7 @@ export function CreateVoyageForm() {
         <FormField
           control={form.control}
           name="scheduledDeparture"
-          render={(field) => (
+          render={({ field }) => (
             <FormItem className="mb-2">
               <FormLabel> Departure time and date</FormLabel>
               <FormControl>
@@ -148,7 +148,7 @@ export function CreateVoyageForm() {
                   {...field}
                   type="text"
                   required
-                  placeholder="Oslo"
+                  placeholder="Copenhagen"
                   id="portOfLoading"
                   className="col-span-3"
                 />
@@ -193,7 +193,9 @@ export function CreateVoyageForm() {
                     </SelectTrigger>
                     <SelectContent>
                       {vessels.map((vessel) => (
-                        <SelectItem value={vessel.id}>{vessel.name}</SelectItem>
+                        <SelectItem value={vessel.id} key={vessel.id}>
+                          {vessel.name}
+                        </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>

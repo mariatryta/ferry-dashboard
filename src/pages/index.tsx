@@ -7,7 +7,7 @@ import { apiRequest } from "~/utils";
 import Layout from "~/components/layout";
 import { useToast } from "~/hooks/use-toast";
 import { TABLE_DATE_FORMAT } from "~/constants";
-import type { ReturnType } from "./api/voyage/getAll";
+import type { ReturnType } from "./api/voyage";
 
 import {
   Table,
@@ -21,14 +21,14 @@ import { Button } from "~/components/ui/button";
 
 export default function Home() {
   const { data: voyages } = useQuery<ReturnType>(["voyages"], () =>
-    apiRequest("voyage/getAll", "GET")
+    apiRequest("voyage", "GET")
   );
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
   const mutation = useMutation(
     async (voyageId: string) => {
-      await apiRequest(`voyage/delete?id=${voyageId}`, "DELETE");
+      await apiRequest(`voyage/${voyageId}`, "DELETE");
     },
     {
       onSuccess: async () => {

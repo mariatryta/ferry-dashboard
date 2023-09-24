@@ -12,7 +12,7 @@ import {
   TableRow,
 } from "~/components/ui/table";
 
-import type { ReturnType } from "../api/voyage/getVoyageById";
+import type { VoyageWithUnitVessel } from "../api/voyage/[id]";
 import { Unit } from "@prisma/client";
 import { format } from "date-fns";
 import { TABLE_DATE_FORMAT } from "~/constants";
@@ -25,12 +25,11 @@ const OverviewLabel = ({ label }: { label: string }) => {
   return <span className="mr-2 font-bold">{label}</span>;
 };
 
-export default function Home(props: { voyage: ReturnType }) {
+export default function Home(props: { voyage: VoyageWithUnitVessel }) {
   const { query } = useRouter();
-  const { data: voyage } = useQuery<ReturnType>({
+  const { data: voyage } = useQuery<VoyageWithUnitVessel>({
     queryKey: ["voyage", query.id],
-    queryFn: async () =>
-      await apiRequest(`/voyage/getVoyageById?id=${query.id}`, "GET"),
+    queryFn: async () => await apiRequest(`/voyage/${query.id}`, "GET"),
     initialData: props.voyage,
   });
 
@@ -38,7 +37,7 @@ export default function Home(props: { voyage: ReturnType }) {
 
   const mutation = useMutation(
     async (unitId: string) => {
-      const response = await fetch(`/api/unit?id=${unitId}`, {
+      const response = await fetch(`/api/unit/${unitId}`, {
         method: "DELETE",
       });
 
@@ -118,7 +117,7 @@ export const getServerSideProps = async (
   context: GetServerSidePropsContext
 ) => {
   const res = await fetch(
-    `${process.env.BASE_URL}/api/voyage/getVoyageById?id=${context.query.id}`
+    `${process.env.BASE_URL}/api/voyage/${context.query.id}`
   );
 
   if (res.status === 404) {
