@@ -7,18 +7,7 @@ const handler: NextApiHandler = async (
   req: NextApiRequest,
   res: NextApiResponse<{ error?: string } | undefined>
 ) => {
-  
-  if (req.method === "DELETE") {
-    const deletedVoyage = await prisma.unit.delete({
-      where: {
-        id: req.query.id as string,
-      },
-    });
 
-    deletedVoyage ? res.status(204) : res.status(404);
-    res.end();
-    return;
-  }
 
   if (req.method === "POST") {
     try {
