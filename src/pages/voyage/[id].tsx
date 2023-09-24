@@ -1,8 +1,15 @@
+import Head from "next/head";
+import { format } from "date-fns";
+import { Unit } from "@prisma/client";
+import { useRouter } from "next/router";
 import { Button } from "~/components/ui/button";
 import type { GetServerSidePropsContext } from "next";
+import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 
-import Head from "next/head";
-import Layout from "~/components/layout";
+import { apiRequest } from "~/utils";
+import { TABLE_DATE_FORMAT } from "~/constants";
+import type { VoyageWithUnitVessel } from "../api/voyage/[id]";
+
 import {
   Table,
   TableBody,
@@ -11,14 +18,7 @@ import {
   TableHeader,
   TableRow,
 } from "~/components/ui/table";
-
-import type { VoyageWithUnitVessel } from "../api/voyage/[id]";
-import { Unit } from "@prisma/client";
-import { format } from "date-fns";
-import { TABLE_DATE_FORMAT } from "~/constants";
-import { useRouter } from "next/router";
-import { apiRequest } from "~/utils";
-import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
+import Layout from "~/components/layout";
 import { CreateUnitSheet } from "~/components/view/CreateUnitSheet";
 
 const OverviewLabel = ({ label }: { label: string }) => {
@@ -37,17 +37,14 @@ export default function Home(props: { voyage: VoyageWithUnitVessel }) {
 
   const mutation = useMutation(
     async (unitId: string) => {
-      const response = await fetch(`/api/unit/${unitId}`, {
-        method: "DELETE",
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to delete the unit");
-      }
+      await apiRequest(`/unit/${unitId}`, "DELETE");
     },
     {
       onSuccess: async () => {
         await queryClient.invalidateQueries(["voyage", query.id]);
+      },
+      onError: () => {
+        throw new Error("Failed to delete the unit");
       },
     }
   );
@@ -125,7 +122,9 @@ export const getServerSideProps = async (
       notFound: true,
     };
   }
+
   const data = await res.json();
+
   return {
     props: {
       voyage: data,

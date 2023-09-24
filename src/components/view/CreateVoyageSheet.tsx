@@ -27,7 +27,7 @@ export function CreateVoyageSheet() {
           <SheetTitle>Create Voyage</SheetTitle>
         </SheetHeader>
 
-        <CreateVoyageForm></CreateVoyageForm>
+        <CreateVoyageForm />
       </SheetContent>
     </Sheet>
   );
